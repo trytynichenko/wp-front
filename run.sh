@@ -10,7 +10,7 @@ WP_WEBSITE_DEBUG=${WP_WEBSITE_DEBUG:-'false'}
 WP_WEBSITE_DEBUG_LOG=${WP_WEBSITE_DEBUG_LOG:-'false'}
 WP_WEBSITE_DB_HOST=${WP_WEBSITE_DB_HOST:-'mysql'}
 WP_WEBSITE_DB_USER=${WP_WEBSITE_DB_USER:-'root'}
-WP_WEBSITE_DB_NAME=${WP_DB_NAME:-'wp'}
+WP_WEBSITE_DB_NAME=${WP_WEBSITE_DB_NAME:-'wp'}
 WP_WEBSITE_ADMIN_EMAIL=${WP_WEBSITE_ADMIN_EMAIL:-'admin@${WP_WEBSITE_URL}'}
 
 
@@ -42,7 +42,7 @@ SUCCESS "Composer installed!"
 # Download WordPress core
 # ------------
 INFO "Downloading WordPress core..."
-if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
+if [ ! "$(wp core is-installed --allow-root --path=/var/www/${WP_WEBSITE_URL}/public >/dev/null 2>&1 && echo $?)" ]; then
     wp core download \
     --allow-root \
     --path=/var/www/${WP_WEBSITE_URL}/public \
@@ -58,7 +58,7 @@ fi
 # Generate wp-config.php file
 # --------------
 INFO "Generate wp-config.php..."
-if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
+if [ ! "$(wp core is-installed --allow-root --path=/var/www/${WP_WEBSITE_URL}/public >/dev/null 2>&1 && echo $?)" ]; then
     wp core config \
     --allow-root \
     --path=/var/www/${WP_WEBSITE_URL}/public \

@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+
+  wordpress:
+    image: trytynichenko/wp-front
+    ports:
+          - 8080:80
+    links:
+      - mysql:mysql
+    volumes:
+      - ./themes:/var/www/wp.com/public/wp-content/themes
+    environment:
+      WP_WEBSITE_URL: wp.com
+
+  mysql:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./dumps:/docker-entrypoint-initdb.d

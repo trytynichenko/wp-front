@@ -1,0 +1,7 @@
+# Wordpress
+themes/*
+!themes/.keep
+
+# MySQL
+dumps/*
+!dumps/.keep

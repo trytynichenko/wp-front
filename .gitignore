@@ -1,3 +1,6 @@
+# File system
+.idea
+
 # Wordpress
 themes/*
 !themes/.keep

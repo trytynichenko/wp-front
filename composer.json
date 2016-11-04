@@ -1,0 +1,31 @@
+{
+  "name": "trytynichenko/wp-front",
+  "description": "Project for WordPress stack via Composer",
+  "authors": [
+    {
+      "name": "Leonid Trytynichenko",
+      "email": "leo@trytynichenko.com",
+      "homepage": "http://trytynichenko.com/"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org"
+    }
+  ],
+  "require" : {
+    "php": ">=5.4.0"
+  },
+  "require-dev" : {
+    "wpackagist-plugin/theme-check": "*"
+  },
+  "extra": {
+    "installer-paths" : {
+      "public/wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
+    }
+  },
+  "config" : {
+    "vendor-dir" : "public/wp-content/vendor"
+  }
+}

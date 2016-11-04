@@ -28,17 +28,6 @@ INFO () {
 }
 
 
-# Composer installation
-# ------------
-INFO "Install composer..."
-    php /tmp/composer-setup.php \
-    --no-ansi \
-    --install-dir=/usr/local/bin \
-    --filename=composer \
-    && rm -rf /tmp/composer-setup.php
-SUCCESS "Composer installed!"
-
-
 # Download WordPress core
 # ------------
 INFO "Downloading WordPress core..."
@@ -68,7 +57,7 @@ if [ ! "$(wp core is-installed --allow-root --path=/var/www/${WP_WEBSITE_URL}/pu
     --dbhost=${WP_WEBSITE_DB_HOST} \
     --extra-php <<PHP
 define( 'WP_DEBUG', ${WP_WEBSITE_DEBUG} );
-define( 'WP_DEBUG_LOG', true );
+define( 'WP_DEBUG_LOG', ${WP_WEBSITE_DEBUG_LOG} );
 PHP
     SUCCESS "Config file successfully generated!"
 else
@@ -98,6 +87,28 @@ mkdir -p /var/www/${WP_WEBSITE_URL}/public/wp-content/uploads
 chmod -R 775 /var/www/${WP_WEBSITE_URL}/public/wp-content/uploads && \
     chown -R :docker /var/www/${WP_WEBSITE_URL}/public/wp-content/uploads
 SUCCESS "Done!"
+
+
+# Composer installation
+# ------------
+INFO "Install composer..."
+    php /tmp/composer-setup.php \
+    --no-ansi \
+    --install-dir=/usr/local/bin \
+    --filename=composer \
+    && rm -rf /tmp/composer-setup.php
+SUCCESS "Composer installed!"
+
+
+# Run composer
+# ------------------
+if [ -f /composer.json ]; then
+    INFO "Install composer dependency... "
+    ln -s /composer.json /var/www/${WP_WEBSITE_URL}/ && \
+    cd /var/www/${WP_WEBSITE_URL}/
+    composer install
+    SUCCESS "Composer dependency successfully installed!"
+fi
 
 
 # Start apache

@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y libpng12-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure apache
-RUN a2enmod rewrite ssl \
+RUN a2enmod rewrite \
     && service apache2 restart
 
 # Install WP-CLI

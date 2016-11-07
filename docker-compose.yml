@@ -1,17 +1,20 @@
-version: '2'
+version: "2"
 
 services:
 
   wordpress:
     image: trytynichenko/wp-front
     ports:
-          - 8080:80
+      - "80:80"
     links:
       - mysql:mysql
     volumes:
       - ./themes:/var/www/wp.com/public/wp-content/themes
+      - ./log:/var/log/apache2
     environment:
       WP_WEBSITE_URL: wp.com
+    depends_on:
+      - "mysql"
 
   mysql:
     image: mariadb

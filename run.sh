@@ -16,8 +16,10 @@ WP_WEBSITE_ADMIN_EMAIL=${WP_WEBSITE_ADMIN_EMAIL:-'admin@${WP_WEBSITE_URL}'}
 
 # MySQL env
 # ------------
+MYSQL_HOST=${MYSQL_HOST:-'3306'}
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-'root'}
-
+MYSQL_WAIT_LOOPS=${MYSQL_WAIT_LOOPS:-'10'}
+MYSQL_WAIT_SLEEP=${MYSQL_WAIT_SLEEP:-'5'}
 
 SUCCESS () {
   echo -e "\n$(tput -T xterm setaf 2)$(tput -T xterm bold)SUCCESS$(tput -T xterm sgr 0): $1";
@@ -26,6 +28,22 @@ SUCCESS () {
 INFO () {
   echo -e "\n$(tput -T xterm setaf 3)$(tput -T xterm bold)INFO$(tput -T xterm sgr 0): $1";
 }
+
+
+# Wait for MySQL
+# --------------
+INFO "Waiting for MySQL to initialize..."
+i=0
+while ! nc ${WP_WEBSITE_DB_HOST} ${MYSQL_HOST} >/dev/null 2>&1 < /dev/null; do
+  i=`expr $i + 1`
+  if [ $i -ge ${MYSQL_WAIT_LOOPS} ]; then
+    echo "$(date) - ${WP_WEBSITE_DB_HOST}:${MYSQL_HOST} still not reachable, giving up"
+    exit 1
+  fi
+  echo "$(date) - waiting for ${WP_WEBSITE_DB_HOST}:${MYSQL_HOST}..."
+  sleep ${MYSQL_WAIT_SLEEP}
+done
+SUCCESS "MySQL ready!"
 
 
 # Download WordPress core
@@ -108,6 +126,16 @@ if [ -f /composer.json ]; then
     cd /var/www/${WP_WEBSITE_URL}/
     composer install
     SUCCESS "Composer dependency successfully installed!"
+fi
+
+
+# Configure VirtualHost
+# ------------------
+if [ -f /000-default.conf ]; then
+    INFO "Configure VirtualHost... "
+    sed -i -e "s/{HOST}/${WP_WEBSITE_URL}/g" /000-default.conf
+    ln -sf /000-default.conf /etc/apache2/sites-enabled/
+    SUCCESS "VirtualHost successfully Configured!"
 fi
 
 

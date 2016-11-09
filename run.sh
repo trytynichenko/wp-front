@@ -95,19 +95,6 @@ else
 fi
 
 
-# Configure .htaccess
-# -------------------
-if [ ! -f /var/www/${WP_WEBSITE_URL}/public/.htaccess ]; then
-  INFO "Generating .htaccess file... "
-  wp rewrite flush --allow-root \
-  --hard \
-  --path=/var/www/${WP_WEBSITE_URL}/public
-  SUCCESS ".htaccess successfully created!"
-else
-  INFO ".htaccess exists"
-fi
-
-
 # Filesystem Permissions
 # ----------------------
 INFO "Adjusting filesystem permissions... "
@@ -137,6 +124,19 @@ if [ -f /var/www/${WP_WEBSITE_URL}/composer.json ]; then
     INFO "Install composer dependency... "
     cd /var/www/${WP_WEBSITE_URL}/ && composer install
     SUCCESS "Composer dependency successfully installed!"
+fi
+
+
+# Configure .htaccess
+# -------------------
+if [ ! -f /var/www/${WP_WEBSITE_URL}/public/.htaccess ]; then
+  INFO "Generating .htaccess file... "
+  wp rewrite flush --allow-root \
+  --hard \
+  --path=/var/www/${WP_WEBSITE_URL}/public
+  SUCCESS ".htaccess successfully created!"
+else
+  INFO ".htaccess exists"
 fi
 
 

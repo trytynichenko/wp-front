@@ -10,6 +10,9 @@ services:
       - mysql:mysql
     volumes:
       - ./themes:/var/www/wp.com/public/wp-content/themes
+      - ./uploads:/var/www/wp.com/public/wp-content/uploads
+      - ./plugins:/var/www/wp.com/public/wp-content/plugins
+      - ./composer.json:/var/www/wp.com/composer.json
       - ./log:/var/log/apache2
     environment:
       WP_WEBSITE_URL: wp.com

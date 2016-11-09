@@ -4,7 +4,13 @@
 # Wordpress
 themes/*
 !themes/.keep
+plugins/*
+!plugins/.keep
 
 # MySQL
 dumps/*
 !dumps/.keep
+
+# Logs
+log/*
+!log/.keep

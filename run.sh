@@ -120,23 +120,18 @@ SUCCESS "Composer installed!"
 
 # Run composer
 # ------------------
-if [ -f /composer.json ]; then
+if [ -f /var/www/${WP_WEBSITE_URL}/composer.json ]; then
     INFO "Install composer dependency... "
-    ln -s /composer.json /var/www/${WP_WEBSITE_URL}/ && \
-    cd /var/www/${WP_WEBSITE_URL}/
-    composer install
+    cd /var/www/${WP_WEBSITE_URL}/ && composer install
     SUCCESS "Composer dependency successfully installed!"
 fi
 
 
 # Configure VirtualHost
 # ------------------
-if [ -f /000-default.conf ]; then
-    INFO "Configure VirtualHost... "
-    sed -i -e "s/{HOST}/${WP_WEBSITE_URL}/g" /000-default.conf
-    ln -sf /000-default.conf /etc/apache2/sites-enabled/
-    SUCCESS "VirtualHost successfully Configured!"
-fi
+INFO "Configure VirtualHost... "
+sed -i -e "s/{HOST}/${WP_WEBSITE_URL}/g" /etc/apache2/sites-enabled/000-default.conf
+SUCCESS "VirtualHost successfully Configured!"
 
 
 # Start apache

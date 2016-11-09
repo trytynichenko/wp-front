@@ -3,7 +3,7 @@ set -e
 
 
 # WordPress env
-# ------------
+# -------------
 WP_WEBSITE_URL=${WP_WEBSITE_URL:-'wp.com'}
 WP_WEBSITE_VER=${WP_WEBSITE_VER:-'latest'}
 WP_WEBSITE_DEBUG=${WP_WEBSITE_DEBUG:-'false'}
@@ -15,7 +15,7 @@ WP_WEBSITE_ADMIN_EMAIL=${WP_WEBSITE_ADMIN_EMAIL:-'admin@${WP_WEBSITE_URL}'}
 
 
 # MySQL env
-# ------------
+# ---------
 MYSQL_HOST=${MYSQL_HOST:-'3306'}
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-'root'}
 MYSQL_WAIT_LOOPS=${MYSQL_WAIT_LOOPS:-'10'}
@@ -47,7 +47,7 @@ SUCCESS "MySQL ready!"
 
 
 # Download WordPress core
-# ------------
+# -----------------------
 INFO "Downloading WordPress core..."
 if [ ! "$(wp core is-installed --allow-root --path=/var/www/${WP_WEBSITE_URL}/public >/dev/null 2>&1 && echo $?)" ]; then
     wp core download \
@@ -63,7 +63,7 @@ fi
 
 
 # Generate wp-config.php file
-# --------------
+# ---------------------------
 INFO "Generate wp-config.php..."
 if [ ! "$(wp core is-installed --allow-root --path=/var/www/${WP_WEBSITE_URL}/public >/dev/null 2>&1 && echo $?)" ]; then
     wp core config \
@@ -95,6 +95,19 @@ else
 fi
 
 
+# Configure .htaccess
+# -------------------
+if [ ! -f /var/www/${WP_WEBSITE_URL}/public/.htaccess ]; then
+  INFO "Generating .htaccess file... "
+  wp rewrite flush --allow-root \
+  --hard \
+  --path=/var/www/${WP_WEBSITE_URL}/public
+  SUCCESS ".htaccess successfully created!"
+else
+  INFO ".htaccess exists"
+fi
+
+
 # Filesystem Permissions
 # ----------------------
 INFO "Adjusting filesystem permissions... "
@@ -108,7 +121,7 @@ SUCCESS "Done!"
 
 
 # Composer installation
-# ------------
+# ---------------------
 INFO "Install composer..."
     php /tmp/composer-setup.php \
     --no-ansi \
@@ -119,7 +132,7 @@ SUCCESS "Composer installed!"
 
 
 # Run composer
-# ------------------
+# ------------
 if [ -f /var/www/${WP_WEBSITE_URL}/composer.json ]; then
     INFO "Install composer dependency... "
     cd /var/www/${WP_WEBSITE_URL}/ && composer install
@@ -128,7 +141,7 @@ fi
 
 
 # Configure VirtualHost
-# ------------------
+# ---------------------
 INFO "Configure VirtualHost... "
 sed -i -e "s/{HOST}/${WP_WEBSITE_URL}/g" /etc/apache2/sites-enabled/000-default.conf
 SUCCESS "VirtualHost successfully Configured!"

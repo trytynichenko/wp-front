@@ -11,6 +11,8 @@ WP_WEBSITE_DEBUG_LOG=${WP_WEBSITE_DEBUG_LOG:-'false'}
 WP_WEBSITE_DB_HOST=${WP_WEBSITE_DB_HOST:-'mysql'}
 WP_WEBSITE_DB_USER=${WP_WEBSITE_DB_USER:-'root'}
 WP_WEBSITE_DB_NAME=${WP_WEBSITE_DB_NAME:-'wp'}
+WP_WEBSITE_CACHE==${WP_WEBSITE_CACHE:-'false'}
+WP_WEBSITE_MEMORY_LIMMIT==${WP_WEBSITE_MEMORY_LIMMIT:-'128M'}
 WP_WEBSITE_ADMIN_EMAIL=${WP_WEBSITE_ADMIN_EMAIL:-'admin@${WP_WEBSITE_URL}'}
 
 
@@ -76,6 +78,7 @@ if [ ! "$(wp core is-installed --allow-root --path=/var/www/${WP_WEBSITE_URL}/pu
     --extra-php <<PHP
 define( 'WP_DEBUG', ${WP_WEBSITE_DEBUG} );
 define( 'WP_DEBUG_LOG', ${WP_WEBSITE_DEBUG_LOG} );
+define( 'WP_CACHE', ${WP_WEBSITE_CACHE} );
 PHP
     SUCCESS "Config file successfully generated!"
 else
@@ -138,6 +141,13 @@ if [ ! -f /var/www/${WP_WEBSITE_URL}/public/.htaccess ]; then
 else
   INFO ".htaccess exists"
 fi
+
+
+# Configure PHP
+# ---------------------
+INFO "Configure PHP... "
+sed -i -e "s/memory_limit = .*/memory_limit = ${WP_WEBSITE_MEMORY_LIMMIT}/" /etc/php5/apache2/php.ini
+SUCCESS "PHP successfully Configured!"
 
 
 # Configure VirtualHost

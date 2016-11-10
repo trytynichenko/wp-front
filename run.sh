@@ -69,7 +69,7 @@ SUCCESS "WP-CLI config successfully configured!"
 
 # Download WordPress core
 # -----------------------
-if [ ! -f /var/www/public/wp-settings.php ]; then
+if [ ! -f /var/www/html/public/wp-settings.php ]; then
     INFO "Downloading WordPress core..."
     sudo -u www-data wp core download \
     --skip-plugins=all \
@@ -103,7 +103,7 @@ SUCCESS "MySQL ready!"
 
 # Generate wp-config.php file
 # ---------------------------
-if [ ! -f /var/www/public/wp-config.php ]; then
+if [ ! -f /var/www/html/public/wp-config.php ]; then
     INFO "Generate wp-config.php file..."
     sudo -u www-data wp core config >/dev/null 2>&1
     if [ $? -eq 0 ]; then

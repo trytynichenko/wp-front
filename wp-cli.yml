@@ -1,5 +1,4 @@
 path: public
-url: {{WP_WEBSITE_URL}}
 quiet: true
 apache_modules:
   - mod_rewrite

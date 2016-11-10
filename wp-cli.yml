@@ -1,0 +1,21 @@
+path: public
+url: {{WP_WEBSITE_URL}}
+quiet: true
+apache_modules:
+  - mod_rewrite
+core config:
+  dbuser: {{WP_WEBSITE_DB_USER}}
+  dbpass: {{MYSQL_ROOT_PASSWORD}}
+  dbname: {{WP_WEBSITE_DB_NAME}}
+  dbhost: {{WP_WEBSITE_DB_HOST}}
+  extra-php: |
+    define( 'WP_DEBUG', {{WP_WEBSITE_DEBUG}} );
+    define( 'WP_DEBUG_LOG', {{WP_WEBSITE_DEBUG_LOG}} );
+    define( 'WP_CACHE', {{WP_WEBSITE_CACHE}} );
+core install:
+  url: {{WP_WEBSITE_URL}}:{{WP_WEBSITE_PORT}}
+  title: {{WP_WEBSITE_DB_NAME}}
+  admin_user: {{WP_WEBSITE_DB_USER}}
+  admin_password: {{MYSQL_ROOT_PASSWORD}}
+  admin_email: {{WP_WEBSITE_ADMIN_EMAIL}}
+  skip-email: true

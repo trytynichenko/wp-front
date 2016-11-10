@@ -5,19 +5,15 @@ services:
   wordpress:
     image: trytynichenko/wp-front
     ports:
-      - "80:80"
+      - "8080:80"
     links:
       - mysql:mysql
     volumes:
-      - ./themes:/var/www/wp.com/public/wp-content/themes
-      - ./uploads:/var/www/wp.com/public/wp-content/uploads
-      - ./plugins:/var/www/wp.com/public/wp-content/plugins
-      - ./composer.json:/var/www/wp.com/composer.json
+      - ./composer.json:/var/www/html/composer.json
       - ./log:/var/log/apache2
     environment:
-      WP_WEBSITE_URL: wp.com
-    depends_on:
-      - "mysql"
+      WP_WEBSITE_URL: wp.dev
+      WP_WEBSITE_PORT: 8080
 
   mysql:
     image: mariadb

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set +e
 
 
 # WordPress env
@@ -48,7 +48,7 @@ ERROR () { echo -e "\n$(tput -T xterm setaf 1)$(tput -T xterm bold)ERROR$(tput -
 # --------------
 INFO "Set up root folder permission..."
     chown -R www-data:www-data /var/www/html
-SUCCESS "Done!"
+SUCCESS "Folder permission successfully configured!"
 
 
 # Configure wp-cli
@@ -64,19 +64,22 @@ INFO "Configure WP-CLI config file based on ENV..."
     sed -i -e "s/{{WP_WEBSITE_CACHE}}/${WP_WEBSITE_CACHE}/g" ./wp-cli.yml
     sed -i -e "s/{{WP_WEBSITE_PORT}}/${WP_WEBSITE_PORT}/g" ./wp-cli.yml
     sed -i -e "s/{{WP_WEBSITE_ADMIN_EMAIL}}/${WP_WEBSITE_ADMIN_EMAIL}/g" ./wp-cli.yml
-SUCCESS "Done!"
+SUCCESS "WP-CLI config successfully configured!"
 
 
 # Download WordPress core
 # -----------------------
-
 if [ ! -f /var/www/public/wp-settings.php ]; then
     INFO "Downloading WordPress core..."
     sudo -u www-data wp core download \
     --skip-plugins=all \
     --skip-themes=all \
-    --version=${WP_WEBSITE_VER} >/dev/null 2>&1 || ERROR "Failed to download WordPress"
-    SUCCESS "WordPress core successfully downloaded!"
+    --version=${WP_WEBSITE_VER} >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        SUCCESS "WordPress core successfully downloaded!"
+    else
+        ERROR "Failed to download WordPress core"
+    fi
 else
     INFO "WordPress core already downloaded! Skipping..."
 fi
@@ -87,13 +90,13 @@ fi
 INFO "Waiting for MySQL to initialize..."
 i=0
 while ! nc ${WP_WEBSITE_DB_HOST} ${MYSQL_PORT} >/dev/null 2>&1 < /dev/null; do
-    i=`expr $i + 1`
-    if [ $i -ge ${MYSQL_WAIT_LOOPS} ]; then
-        echo "$(date) - ${WP_WEBSITE_DB_HOST}:${MYSQL_PORT} still not reachable, try to increase MYSQL_WAIT_LOOPS environment more than '${MYSQL_WAIT_LOOPS}'"
-        exit 1
-    fi
-    echo "$(date) - waiting for ${WP_WEBSITE_DB_HOST}:${MYSQL_PORT}..."
-    sleep ${MYSQL_WAIT_SLEEP}
+  i=`expr $i + 1`
+  if [ $i -ge ${MYSQL_WAIT_LOOPS} ]; then
+    echo "$(date) - ${WP_WEBSITE_DB_HOST}:${MYSQL_PORT} still not reachable, try to increase MYSQL_WAIT_LOOPS environment more than '${MYSQL_WAIT_LOOPS}'"
+    exit 1
+  fi
+  echo "$(date) - waiting for ${WP_WEBSITE_DB_HOST}:${MYSQL_PORT}..."
+  sleep ${MYSQL_WAIT_SLEEP}
 done
 SUCCESS "MySQL ready!"
 
@@ -102,8 +105,12 @@ SUCCESS "MySQL ready!"
 # ---------------------------
 if [ ! -f /var/www/public/wp-config.php ]; then
     INFO "Generate wp-config.php file..."
-    sudo -u www-data wp core config >/dev/null 2>&1 || ERROR "Could not generate wp-config.php file"
-    SUCCESS "Config file successfully generated!"
+    sudo -u www-data wp core config >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        SUCCESS "Config file successfully generated!"
+    else
+        ERROR "Could not generate wp-config.php file"
+    fi
 else
     INFO "Config file exists! Skipping..."
 fi
@@ -114,21 +121,29 @@ fi
 INFO "Create database '${WP_WEBSITE_DB_NAME}'"
 if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
     INFO "Database backup was not loaded. Initializing new database... "
-    sudo -u www-data wp core install >/dev/null 2>&1 || ERROR "WordPress Install Failed"
-    SUCCESS "Done!"
+    sudo -u www-data wp db create && wp core install >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        SUCCESS "New database successfully created!"
+    else
+        ERROR "Initializing new database failed!"
+    fi
 else
     INFO "Database already exists! Skipping..."
     if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
         INFO "Trying replace urls..."
-        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid || ERROR "Could not generate wp-config.php file"
-        SUCCESS "URL's successfully replaced!"
+        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            SUCCESS "URL's successfully replaced!"
+        else
+            ERROR "Could not generate wp-config.php file"
+        fi
     fi
 fi
 
 
 # Filesystem Permissions
 # ----------------------
-INFO "Adjusting filesystem permissions... "
+INFO "Adjusting filesystem permissions..."
     groupadd -f docker && usermod -aG docker www-data
     find /var/www/html/public -type d -exec chmod 755 {} \;
     find /var/www/html/public -type f -exec chmod 644 {} \;
@@ -152,26 +167,35 @@ SUCCESS "Composer installed!"
 # Run composer
 # ------------
 if [ -f /var/www/html/composer.json ]; then
-    INFO "Install composer dependency... "
-    composer install
-    SUCCESS "Composer dependency successfully installed!"
+    INFO "Install composer dependency..."
+    composer install >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        SUCCESS "Composer dependency successfully installed!"
+    else
+        ERROR "Could not install composer dependencies!"
+    fi
+else
+    INFO "composer.json file not exist! Skipping..."
 fi
-
 
 # Configure .htaccess
 # -------------------
 if [ ! -f /var/www/html/public/.htaccess ]; then
-  INFO "Generating .htaccess file... "
-  sudo -u www-data wp rewrite flush --hard
-  SUCCESS ".htaccess successfully created!"
+    INFO "Generating .htaccess file..."
+    sudo -u www-data wp rewrite flush --hard >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        SUCCESS ".htaccess successfully created!"
+    else
+        ERROR "Could not generate .htaccess file"
+    fi
 else
-  INFO ".htaccess exists"
+    INFO ".htaccess exists! Skipping..."
 fi
 
 
 # Configure PHP
 # ---------------------
-INFO "Configure PHP... "
+INFO "Configure PHP..."
     sed -i -e "s/memory_limit = .*/memory_limit = ${WP_PHP_MEMORY_LIMIT}/" /etc/php5/apache2/php.ini
     sed -i -e "s/file_uploads = .*/file_uploads = ${WP_PHP_FILE_UPLOADS}/" /etc/php5/apache2/php.ini
     sed -i -e "s/upload_max_filesize = .*/upload_max_filesize = ${WP_PHP_UPLOAD_MAX_FILESIZE}/" /etc/php5/apache2/php.ini
@@ -182,14 +206,14 @@ SUCCESS "PHP successfully Configured!"
 
 # Configure VirtualHost
 # ---------------------
-INFO "Configure VirtualHost... "
+INFO "Configure VirtualHost..."
     sed -i -e "s/{{HOST}}/${WP_WEBSITE_URL}/g" /etc/apache2/sites-enabled/000-default.conf
 SUCCESS "VirtualHost successfully Configured!"
 
 
 # Start apache
 # ------------
-INFO "=> Starting apache service... "
+INFO "Starting apache service..."
 rm -f /var/run/apache2/apache2.pid
 source /etc/apache2/envvars
 exec apache2 -D FOREGROUND

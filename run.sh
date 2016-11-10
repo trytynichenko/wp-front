@@ -120,7 +120,7 @@ else
     INFO "Database already exists! Skipping..."
     if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
         INFO "Trying replace urls..."
-        sudo -u www-data wp search-replace "${WP_WEBSITE_URL}" ${WP_WEBSITE_DUMP_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid || ERROR "Could not generate wp-config.php file"
+        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid || ERROR "Could not generate wp-config.php file"
         SUCCESS "URL's successfully replaced!"
     fi
 fi

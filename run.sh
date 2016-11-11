@@ -71,11 +71,10 @@ SUCCESS "WP-CLI config successfully configured!"
 # -----------------------
 if [ ! -f /var/www/html/public/wp-settings.php ]; then
     INFO "Downloading WordPress core..."
-    sudo -u www-data wp core download \
+    wp core download --force \
+    --version=${WP_WEBSITE_VER} \
     --skip-plugins=all \
-    --skip-themes=all \
-    --force \
-    --version=${WP_WEBSITE_VER} >/dev/null 2>&1
+    --skip-themes=all >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         SUCCESS "WordPress core successfully downloaded!"
     else
@@ -131,18 +130,18 @@ if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
         fi
     else
         ERROR "Initializing new database failed!"
-        if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
-            INFO "Trying replace urls..."
-            sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid >/dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                SUCCESS "URL's successfully replaced!"
-            else
-                ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT}"
-            fi
-        fi
     fi
 else
     INFO "WordPress core already installed! Skipping..."
+    if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
+        INFO "Trying replace urls..."
+        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            SUCCESS "URL's successfully replaced!"
+        else
+            ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT}"
+        fi
+    fi
 fi
 
 

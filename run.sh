@@ -104,16 +104,13 @@ SUCCESS "MySQL ready!"
 
 # Generate wp-config.php file
 # ---------------------------
-if [ ! -f /var/www/html/public/wp-config.php ]; then
-    INFO "Generate wp-config.php file..."
-    sudo -u www-data wp core config >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        SUCCESS "Config file successfully generated!"
-    else
-        ERROR "Could not generate wp-config.php file"
-    fi
+INFO "Generate wp-config.php file..."
+rm -f /var/www/html/public/wp-config.php
+sudo -u www-data wp core config >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    SUCCESS "Config file successfully generated!"
 else
-    INFO "Config file exists! Skipping..."
+    ERROR "Could not generate wp-config.php file"
 fi
 
 
@@ -122,23 +119,30 @@ fi
 INFO "Create database '${WP_WEBSITE_DB_NAME}'"
 if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
     INFO "Database backup was not loaded. Initializing new database... "
-    sudo -u www-data wp db create && wp core install >/dev/null 2>&1
+    sudo -u www-data wp db create >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         SUCCESS "New database successfully created!"
+        INFO "Trying install WordPress core..."
+        sudo -u www-data wp core install >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            SUCCESS "WordPress core successfully installed!"
+        else
+            ERROR "Could not install WordPress core!"
+        fi
     else
         ERROR "Initializing new database failed!"
-    fi
-else
-    INFO "Database already exists! Skipping..."
-    if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
-        INFO "Trying replace urls..."
-        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid >/dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            SUCCESS "URL's successfully replaced!"
-        else
-            ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT}"
+        if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
+            INFO "Trying replace urls..."
+            sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid >/dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                SUCCESS "URL's successfully replaced!"
+            else
+                ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT}"
+            fi
         fi
     fi
+else
+    INFO "WordPress core already installed! Skipping..."
 fi
 
 

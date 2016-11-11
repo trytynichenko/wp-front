@@ -62,7 +62,6 @@ INFO "Configure WP-CLI config file based on ENV..."
     sed -i -e "s/{{WP_WEBSITE_DEBUG}}/${WP_WEBSITE_DEBUG}/g" ./wp-cli.yml
     sed -i -e "s/{{WP_WEBSITE_DEBUG_LOG}}/${WP_WEBSITE_DEBUG_LOG}/g" ./wp-cli.yml
     sed -i -e "s/{{WP_WEBSITE_CACHE}}/${WP_WEBSITE_CACHE}/g" ./wp-cli.yml
-    sed -i -e "s/{{WP_WEBSITE_PORT}}/${WP_WEBSITE_PORT}/g" ./wp-cli.yml
     sed -i -e "s/{{WP_WEBSITE_ADMIN_EMAIL}}/${WP_WEBSITE_ADMIN_EMAIL}/g" ./wp-cli.yml
 SUCCESS "WP-CLI config successfully configured!"
 
@@ -136,11 +135,11 @@ else
     INFO "WordPress core already installed! Skipping..."
     if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
         INFO "Trying replace urls..."
-        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT} --recurse-objects --skip-columns=guid >/dev/null 2>&1
+        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL} --recurse-objects --skip-columns=guid >/dev/null 2>&1
         if [ $? -eq 0 ]; then
             SUCCESS "URL's successfully replaced!"
         else
-            ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT}"
+            ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}"
         fi
     fi
 fi

@@ -74,12 +74,12 @@ if [ ! -f /var/www/html/public/wp-settings.php ]; then
     sudo -u www-data wp core download \
     --skip-plugins=all \
     --skip-themes=all \
+    --force \
     --version=${WP_WEBSITE_VER} >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         SUCCESS "WordPress core successfully downloaded!"
     else
         ERROR "Failed to download WordPress core"
-        exit $?
     fi
 else
     INFO "WordPress core already downloaded! Skipping..."
@@ -111,7 +111,6 @@ if [ ! -f /var/www/html/public/wp-config.php ]; then
         SUCCESS "Config file successfully generated!"
     else
         ERROR "Could not generate wp-config.php file"
-        exit $?
     fi
 else
     INFO "Config file exists! Skipping..."
@@ -128,7 +127,6 @@ if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
         SUCCESS "New database successfully created!"
     else
         ERROR "Initializing new database failed!"
-        exit $?
     fi
 else
     INFO "Database already exists! Skipping..."
@@ -139,7 +137,6 @@ else
             SUCCESS "URL's successfully replaced!"
         else
             ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}:${WP_WEBSITE_PORT}"
-            exit $?
         fi
     fi
 fi
@@ -177,7 +174,6 @@ if [ -f /var/www/html/composer.json ]; then
         SUCCESS "Composer dependency successfully installed!"
     else
         ERROR "Could not install composer dependencies!"
-        exit $?
     fi
 else
     INFO "composer.json file not exist! Skipping..."
@@ -192,7 +188,6 @@ if [ ! -f /var/www/html/public/.htaccess ]; then
         SUCCESS ".htaccess successfully created!"
     else
         ERROR "Could not generate .htaccess file"
-        exit $?
     fi
 else
     INFO ".htaccess exists! Skipping..."

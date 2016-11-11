@@ -12,7 +12,7 @@ core config:
     define( 'WP_DEBUG_LOG', {{WP_WEBSITE_DEBUG_LOG}} );
     define( 'WP_CACHE', {{WP_WEBSITE_CACHE}} );
 core install:
-  url: {{WP_WEBSITE_URL}}:{{WP_WEBSITE_PORT}}
+  url: {{WP_WEBSITE_URL}}
   title: {{WP_WEBSITE_DB_NAME}}
   admin_user: {{WP_WEBSITE_DB_USER}}
   admin_password: {{MYSQL_ROOT_PASSWORD}}

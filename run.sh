@@ -74,7 +74,8 @@ if [ ! -f /var/www/html/public/wp-settings.php ]; then
     wp core download --force \
     --version=${WP_WEBSITE_VER} \
     --skip-plugins=all \
-    --skip-themes=all >/dev/null 2>&1
+    --skip-themes=all \
+    --allow-root >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         SUCCESS "WordPress core successfully downloaded!"
     else

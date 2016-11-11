@@ -13,7 +13,6 @@ services:
       - ./log:/var/log/apache2
     environment:
       WP_WEBSITE_URL: wp.dev
-      WP_WEBSITE_PORT: 8080
 
   mysql:
     image: mariadb

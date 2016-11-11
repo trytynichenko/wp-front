@@ -187,7 +187,7 @@ fi
 # -------------------
 if [ ! -f /var/www/html/public/.htaccess ]; then
     INFO "Generating .htaccess file..."
-    sudo -u www-data wp rewrite flush --hard >/dev/null 2>&1
+    wp rewrite flush --allow-root --hard >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         SUCCESS ".htaccess successfully created!"
     else

@@ -5,8 +5,7 @@ set +e
 # WordPress env
 # -------------
 WP_WEBSITE_URL=${WP_WEBSITE_URL:-"wp.com"}
-WP_WEBSITE_DUMP_URL=${WP_WEBSITE_DUMP_URL:-"false"}
-WP_WEBSITE_PORT=${WP_WEBSITE_PORT:-"8080"}
+WP_WEBSITE_REPLACE_URL=${WP_WEBSITE_REPLACE_URL:-"false"}
 WP_WEBSITE_VER=${WP_WEBSITE_VER:-"latest"}
 WP_WEBSITE_ADMIN_EMAIL=${WP_WEBSITE_ADMIN_EMAIL:-"admin@${WP_WEBSITE_URL}"}
 
@@ -133,13 +132,13 @@ if [ ! "$(wp core is-installed --allow-root >/dev/null 2>&1 && echo $?)" ]; then
     fi
 else
     INFO "WordPress core already installed! Skipping..."
-    if [ "${WP_WEBSITE_DUMP_URL}" != false ]; then
+    if [ "${WP_WEBSITE_REPLACE_URL}" != false ]; then
         INFO "Trying replace urls..."
-        sudo -u www-data wp search-replace ${WP_WEBSITE_DUMP_URL} ${WP_WEBSITE_URL} --recurse-objects --skip-columns=guid >/dev/null 2>&1
+        sudo -u www-data wp search-replace ${WP_WEBSITE_REPLACE_URL} ${WP_WEBSITE_URL} --recurse-objects --skip-columns=guid >/dev/null 2>&1
         if [ $? -eq 0 ]; then
             SUCCESS "URL's successfully replaced!"
         else
-            ERROR "Could not replace ${WP_WEBSITE_DUMP_URL} to ${WP_WEBSITE_URL}"
+            ERROR "Could not replace ${WP_WEBSITE_REPLACE_URL} to ${WP_WEBSITE_URL}"
         fi
     fi
 fi

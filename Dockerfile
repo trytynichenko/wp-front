@@ -30,6 +30,7 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 WORKDIR /var/www/html
 
 COPY run.sh /
+COPY isdev.js /var/www/html/
 COPY wp-cli.yml /var/www/html/
 COPY 000-default.conf /etc/apache2/sites-enabled/
 RUN chmod +x /run.sh
